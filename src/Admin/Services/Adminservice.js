@@ -1,3 +1,6 @@
+import ContactMessage from "../../Contact/Model/ContactModel.js";
+import Service from "../../OurService(Home)/Model/homeservices.js";
+import StudentSubmission from "../../StudentApplications/Model/StudentSubmissionModel.js";
 import { generateToken } from "../Config/config.js";
 import User from "../Model/AdminModel.js";
 import bcrypt from 'bcrypt';
@@ -68,14 +71,33 @@ export const loginUser = async (credentials) => {
   }
 };
 
-export const getUserById = async (userId) => {
+
+
+
+
+export const getDashboardStats = async () => {
   try {
-    const user = await User.findById(userId).select('-password');
-    if (!user) {
-      throw new Error('User not found');
-    }
-    return user;
+    const totalStudents = await StudentSubmission.countDocuments();
+
+    const totalServices = await Service.countDocuments();
+
+    const totalMessages = await ContactMessage.countDocuments();
+
+    const unreadMessages = await ContactMessage.countDocuments({ status: 'unread' });
+
+    return {
+      success: true,
+      data: {
+        totalStudents,
+        totalServices,
+        totalMessages,
+        unreadMessages
+      }
+    };
   } catch (error) {
-    throw error;
+    return {
+      success: false,
+      message: error.message
+    };
   }
 };

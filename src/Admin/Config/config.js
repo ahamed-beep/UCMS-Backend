@@ -7,3 +7,5 @@ export const generateToken = (userId) => {
     { expiresIn: process.env.JWT_EXPIRE || '7d' }
   );
 };
+
+

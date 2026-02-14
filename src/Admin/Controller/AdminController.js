@@ -1,4 +1,5 @@
-import { loginUser, registerUser } from "../Services/Adminservice.js";
+import User from "../Model/AdminModel.js";
+import { getDashboardStats, loginUser, registerUser } from "../Services/Adminservice.js";
 
 export const register = async (req, res) => {
   try {
@@ -42,6 +43,30 @@ export const login = async (req, res) => {
     return res.status(401).json({
       success: false,
       message: error.message || 'Login failed'
+    });
+  }
+};
+
+export const getUserById = async (userId) => {
+  try {
+    const user = await User.findById(userId).select('-password');
+    if (!user) {
+      throw new Error('User not found');
+    }
+    return user;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getDashboardStatsController = async (req, res) => {
+  try {
+    const result = await getDashboardStats();
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
     });
   }
 };

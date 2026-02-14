@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { getUserById } from '../Services/Adminservice.js';
+import { getUserById } from '../Controller/AdminController.js';
 
  export const authMiddleware = async (req, res, next) => {
   try {
