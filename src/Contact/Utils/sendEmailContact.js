@@ -13,7 +13,6 @@ export const sendContactEmails = async (contactData) => {
       html: getContactUserEmailTemplate(contactData)
     };
 
-    // Email to ADMIN
     const adminMailOptions = {
       from: '"UCMS Consultancy" <' + process.env.EMAIL_USER + '>',
       to: 'muhamedahamed251@gmail.com',  
@@ -21,13 +20,9 @@ export const sendContactEmails = async (contactData) => {
       html: getContactAdminEmailTemplate(contactData)
     };
 
-    console.log('📤 Sending user email...');
     const userEmailResult = await transporter.sendMail(userMailOptions);
-    console.log('✅ User email sent:', userEmailResult.messageId);
 
-    console.log('📤 Sending admin email...');
     const adminEmailResult = await transporter.sendMail(adminMailOptions);
-    console.log('✅ Admin email sent:', adminEmailResult.messageId);
 
     return {
       success: true,
