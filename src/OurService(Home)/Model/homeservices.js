@@ -24,6 +24,11 @@ const serviceSchema = new mongoose.Schema({
     type: String,
     default: 'book'  // Home page icon
   },
+  iconColor: {
+    type: String,
+    default: '#F97316',  // Default black color
+    trim: true
+  },
   servicePageImage: {
     type: String,
     default: ''  // Our Service page image

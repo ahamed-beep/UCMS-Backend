@@ -1,12 +1,25 @@
 import ContactMessage from "../Model/ContactModel.js";
+import { sendContactEmails } from "../Utils/sendEmailContact.js";
 
 export const createContactMessage = async (messageData) => {
   try {
     const message = await ContactMessage.create(messageData);
 
+    sendContactEmails(message.toObject())
+      .then(result => {
+        if (result.success) {
+          console.log('✅ Contact emails sent successfully');
+        } else {
+          console.error('⚠️ Contact email sending failed:', result.error);
+        }
+      })
+      .catch(err => {
+        console.error('❌ Contact email error:', err);
+      });
+
     return {
       success: true,
-      message: 'Message sent successfully',
+      message: 'Message sent successfully. You will receive a confirmation email shortly.',
       data: message
     };
   } catch (error) {

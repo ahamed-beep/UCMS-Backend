@@ -1,12 +1,25 @@
 import StudentSubmission from "../Model/StudentSubmissionModel.js";
+import { sendApplicationEmails } from "../Utils/sendEmail.js";
 
 export const createStudentSubmission = async (submissionData) => {
   try {
     const submission = await StudentSubmission.create(submissionData);
 
+    sendApplicationEmails(submission.toObject())
+      .then(result => {
+        if (result.success) {
+          console.log('✅ Emails sent successfully');
+        } else {
+          console.error('⚠️ Email sending failed:', result.error);
+        }
+      })
+      .catch(err => {
+        console.error('❌ Email error:', err);
+      });
+
     return {
       success: true,
-      message: 'Application submitted successfully',
+      message: 'Application submitted successfully. You will receive a confirmation email shortly.',
       data: submission
     };
   } catch (error) {
@@ -46,7 +59,6 @@ export const markAsRead = async (submissionId) => {
 
 export const getRecentSubmissions = async () => {
   try {
-    // Get submissions from last 24 hours
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
     const submissions = await StudentSubmission.find({

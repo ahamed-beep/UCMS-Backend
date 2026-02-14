@@ -8,7 +8,7 @@ import {
 
 export const createServiceController = async (req, res) => {
   try {
-    const { title, subtitle, description, bulletPoints } = req.body;
+    const { title, subtitle, description, bulletPoints, iconColor } = req.body;
 
     if (!title || !description) {
       return res.status(400).json({
@@ -21,7 +21,7 @@ export const createServiceController = async (req, res) => {
     const serviceImageFile = req.files?.servicePageImage?.[0];
 
     const result = await createService(
-      { title, subtitle, description, bulletPoints },
+      { title, subtitle, description, bulletPoints, iconColor },
       iconFile,
       serviceImageFile
     );
@@ -61,13 +61,14 @@ export const getServiceById = async (req, res) => {
 
 export const updateService = async (req, res) => {
   try {
-    const { title, subtitle, description, bulletPoints } = req.body;
+    const { title, subtitle, description, bulletPoints, iconColor } = req.body;
     
     let updateData = {};
     if (title) updateData.title = title;
     if (subtitle !== undefined) updateData.subtitle = subtitle;
     if (description) updateData.description = description;
     if (bulletPoints !== undefined) updateData.bulletPoints = bulletPoints;
+    if (iconColor !== undefined) updateData.iconColor = iconColor;
 
     const iconFile = req.files?.icon?.[0];
     const serviceImageFile = req.files?.servicePageImage?.[0];

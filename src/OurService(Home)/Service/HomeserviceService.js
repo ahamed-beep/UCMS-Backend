@@ -1,52 +1,33 @@
 import cloudinary from "../Cloudinary/cloudinary.js";
+import { deleteFromCloudinary, uploadToCloudinary } from "../Config/ServiceConfig.js";
 import Service from "../Model/homeservices.js";
+import { convertToWebP } from "../Sharp/sharp.js";
 
-const uploadToCloudinary = (buffer) => {
-  return new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      { folder: 'ucms/services', resource_type: 'auto' },
-      (error, result) => error ? reject(error) : resolve(result)
-    );
-    uploadStream.end(buffer);
-  });
-};
 
-const deleteFromCloudinary = async (imageUrl) => {
-  if (!imageUrl || imageUrl === 'book') return;
-  
-  try {
-    const parts = imageUrl.split('/upload/')[1].split('/');
-    const publicId = parts.slice(1).join('/').split('.')[0];
-    await cloudinary.uploader.destroy(publicId);
-  } catch (error) {
-    console.error('Cloudinary delete error:', error);
-  }
-};
+
 
 export const createService = async (serviceData, iconFile, serviceImageFile) => {
   try {
-    const { title, subtitle, description, bulletPoints } = serviceData;
+    const { title, subtitle, description, bulletPoints, iconColor } = serviceData;
     
-    // Auto-generate service number
     const lastService = await Service.findOne().sort({ serviceNumber: -1 });
     const serviceNumber = lastService ? lastService.serviceNumber + 1 : 1;
 
     let iconUrl = 'book';
     let servicePageImageUrl = '';
 
-    // Upload icon (home page)
     if (iconFile) {
-      const result = await uploadToCloudinary(iconFile.buffer);
+      const webpBuffer = await convertToWebP(iconFile.buffer);
+      const result = await uploadToCloudinary(webpBuffer, true);
       iconUrl = result.secure_url;
     }
 
-    // Upload service page image
     if (serviceImageFile) {
-      const result = await uploadToCloudinary(serviceImageFile.buffer);
+      const webpBuffer = await convertToWebP(serviceImageFile.buffer);
+      const result = await uploadToCloudinary(webpBuffer, true);
       servicePageImageUrl = result.secure_url;
     }
 
-    // Parse bulletPoints
     let parsedBulletPoints = [];
     if (bulletPoints) {
       parsedBulletPoints = typeof bulletPoints === 'string' 
@@ -60,6 +41,7 @@ export const createService = async (serviceData, iconFile, serviceImageFile) => 
       subtitle: subtitle || '',
       description,
       icon: iconUrl,
+      iconColor: iconColor || '#000000',
       servicePageImage: servicePageImageUrl,
       bulletPoints: parsedBulletPoints
     });
@@ -128,21 +110,20 @@ export const updateServiceService = async (serviceId, updateData, iconFile, serv
       };
     }
 
-    // Update icon
     if (iconFile) {
       await deleteFromCloudinary(existingService.icon);
-      const result = await uploadToCloudinary(iconFile.buffer);
+      const webpBuffer = await convertToWebP(iconFile.buffer);
+      const result = await uploadToCloudinary(webpBuffer, true);
       updateData.icon = result.secure_url;
     }
 
-    // Update service page image
     if (serviceImageFile) {
       await deleteFromCloudinary(existingService.servicePageImage);
-      const result = await uploadToCloudinary(serviceImageFile.buffer);
+      const webpBuffer = await convertToWebP(serviceImageFile.buffer);
+      const result = await uploadToCloudinary(webpBuffer, true);
       updateData.servicePageImage = result.secure_url;
     }
 
-    // Parse bulletPoints if provided
     if (updateData.bulletPoints) {
       updateData.bulletPoints = typeof updateData.bulletPoints === 'string' 
         ? JSON.parse(updateData.bulletPoints) 
@@ -179,7 +160,6 @@ export const deleteServiceService = async (serviceId) => {
       };
     }
 
-    // Delete both images
     await deleteFromCloudinary(service.icon);
     await deleteFromCloudinary(service.servicePageImage);
 
