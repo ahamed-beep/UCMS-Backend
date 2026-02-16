@@ -5,6 +5,7 @@ import { createServiceController, deleteService, getAllServices, getServiceById,
 import {  uploadMultiple } from '../src/OurService(Home)/Multer/multer.js';
 import { createSubmissionController, deleteSubmissionController, getAllSubmissionsController, getRecentSubmissionsController, markAsReadController } from '../src/StudentApplications/Controller/StudentSubmissionController.js';
 import { createContactMessageController, deleteContactMessageController, getAllContactMessagesController, getRecentContactMessagesController, markContactMessageAsReadController } from '../src/Contact/Controller/ContactController.js';
+import { verifyToken } from '../src/Admin/Middleware/VerifyToken.js';
 
 const router =express.Router();
 
@@ -15,6 +16,8 @@ router.get('/homeservice',authMiddleware, getAllServices);
 router.get('/homeservice/:id', authMiddleware, getServiceById);
 router.delete('/deletehomeservice/:id',authMiddleware, deleteService);
 router.post('/login', login);
+router.get('/verify-token', authMiddleware, verifyToken);
+
 
 router.post('/student-submission', createSubmissionController); 
 router.patch('/student-submission/:id/read', authMiddleware, markAsReadController);
