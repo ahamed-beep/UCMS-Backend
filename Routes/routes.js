@@ -12,7 +12,7 @@ const router =express.Router();
 router.post('/register', authMiddleware, register);
 router.post('/createHomeService', uploadMultiple, authMiddleware, createServiceController);
 router.put('/updateHomeService/:id', uploadMultiple, authMiddleware, updateService);
-router.get('/homeservice',authMiddleware, getAllServices);
+router.get('/homeservice', getAllServices);
 router.get('/homeservice/:id', authMiddleware, getServiceById);
 router.delete('/deletehomeservice/:id',authMiddleware, deleteService);
 router.post('/login', login);
